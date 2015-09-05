@@ -127,6 +127,36 @@ describe('ncAclService', function () {
 
     });
 
+    describe('can()', function () {
+
+        it('should work with user with multiple roles', function () {
+            AclService.addRole('User');
+            AclService.addRole('Manager');
+            AclService.addResource('Posts');
+            AclService.allow('Manager', 'Posts');
+
+            userIdentityStub.roles = ['User', 'Manager'];
+            AclService.setUserIdentity(userIdentityStub);
+
+            expect(AclService.can('Posts')).toBeTruthy();
+        });
+
+        it('should work with assertions', function () {
+            AclService.addRole('User');
+            AclService.addResource('Posts');
+            AclService.allow('User', 'Posts', null, function (role, resource, privilege) {
+                return role.name === 'Dezmond' && resource === 'Posts';
+            });
+
+            userIdentityStub.roles = ['User'];
+            userIdentityStub.name = 'Dezmond';
+            AclService.setUserIdentity(userIdentityStub);
+
+            expect(AclService.can('Posts')).toBeTruthy();
+        });
+
+    });
+
     describe('isAllowed()', function () {
 
         it('should work with role & resource inheritance', function () {

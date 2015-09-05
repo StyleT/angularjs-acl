@@ -30,8 +30,8 @@
  * privileges, respectively.
  *
  * @callback AclAssertion
- * @param {Object|string} role
- * @param {Object|string} resource
+ * @param {AclRoleInterface|string} role
+ * @param {AclResourceInterface|string} resource
  * @param {string} privilege
  */
 
@@ -70,6 +70,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
         byResourceId: {}
     };
     var _isAllowedResource = null;
+    var _isAllowedRole = null;
 
     /**
      * @returns {{AclRoleInterface|null}}
@@ -110,7 +111,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * @param {string} [privilege=null] privilege
      * @returns {boolean}
      */
-    this.can = function (resource /*null*/, privilege /*null*/) {
+    this.can = function (resource, privilege) {
         resource = typeof resource === 'undefined' ? null : resource;
         privilege = typeof privilege === 'undefined' ? null : privilege;
 
@@ -226,9 +227,11 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
         var result, ruleTypeAllPrivileges;
 
         // reset role & resource to null
+        _isAllowedRole = null;
         _isAllowedResource = null;
 
         if (role !== null) {
+            _isAllowedRole = role;
             role = self.getRole(role);
         }
         if (resource !== null) {
@@ -956,7 +959,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
             var assertion = rule.assert;
             assertionValue = assertion.call(
                 self,
-                role,
+                _isAllowedRole === self.USER_IDENTITY_ROLE && self.getUserIdentity() !== null ? self.getUserIdentity() : role,
                 _isAllowedResource !== null ? _isAllowedResource : resource,
                 privilege
             );
