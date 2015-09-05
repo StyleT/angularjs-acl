@@ -52,7 +52,7 @@ gulp.task('compile', function () {
 
 gulp.task('test', ['compile'], function (done) {
     new karmaServer({
-        configFile: __dirname + '/test/karma.conf.js'
+        configFile: __dirname + '/karma.conf.js'
     }, done).start();
 });
 
