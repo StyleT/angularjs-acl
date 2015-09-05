@@ -1,5 +1,7 @@
 # Angular ACL
 
+[![Build Status](https://travis-ci.org/StyleT/angular-acl.svg?branch=master)](https://travis-ci.org/StyleT/angular-acl)
+
 ---
 
 ## About
