@@ -467,19 +467,19 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * @param  {string} operation
      * @param  {string} type
-     * @param  {string|Array.<string>} roles
-     * @param  {string|Array.<string>} resources
-     * @param  {string|Array.<string>} privileges
-     * @param  {function} assert
-     * @return AclService Provides a fluent interface
+     * @param  {string|Array.<string>} [roles=null] roles
+     * @param  {string|Array.<string>} [resources=null] resources
+     * @param  {string|Array.<string>} [privileges=null] privileges
+     * @param  {function} [assert=null] assert
+     * @return {AclService} Provides a fluent interface
      */
     function setRule (
         operation,
         type,
-        roles  /*null*/,
-        resources  /*null*/,
-        privileges  /*null*/,
-        assert  /*null*/
+        roles,
+        resources,
+        privileges,
+        assert
     ) {
         roles = typeof roles === 'undefined' ? null : roles;
         resources = typeof resources === 'undefined' ? null : resources;
@@ -673,11 +673,11 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * This method returns true if a rule is found and allows access. If a rule exists and denies access,
      * then this method returns false. If no applicable rule is found, then this method returns null.
      *
-     * @param string $role
-     * @param string $resource
+     * @param {string} role
+     * @param {string} [resource=null] resource
      * @return bool|null
      */
-    function roleDFSAllPrivileges(role, resource /*null*/){
+    function roleDFSAllPrivileges(role, resource){
         var dfs = {
             visited: {},
             stack: []
@@ -708,12 +708,12 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * This method is used by the internal depth-first search algorithm and may modify the DFS data structure.
      *
-     * @param string $role
-     * @param string $resource
-     * @param {Object} $dfs
-     * @return bool|null
+     * @param {string} role
+     * @param {string} [resource=null] resource
+     * @param {Object} [dfs=null] dfs
+     * @return {boolean|null}
      */
-    function roleDFSVisitAllPrivileges(role, resource /*null*/, dfs /*null*/) {
+    function roleDFSVisitAllPrivileges(role, resource, dfs) {
         resource = typeof resource === 'undefined' ? null : resource;
         dfs = typeof dfs === 'undefined' ? null : dfs;
 
@@ -751,12 +751,12 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * This method returns true if a rule is found and allows access. If a rule exists and denies access,
      * then this method returns false. If no applicable rule is found, then this method returns null.
      *
-     * @param string $role
-     * @param string $resource
-     * @param string $privilege
-     * @return bool|null
+     * @param {string} role
+     * @param {string} [resource=null] resource
+     * @param {string} [privilege=null] privilege
+     * @return {boolean|null}
      */
-    function roleDFSOnePrivilege(role, resource /*null*/, privilege /*null*/) {
+    function roleDFSOnePrivilege(role, resource, privilege) {
         resource = typeof resource === 'undefined' ? null : resource;
         privilege = typeof privilege === 'undefined' ? null : privilege;
 
@@ -795,13 +795,13 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * This method is used by the internal depth-first search algorithm and may modify the DFS data structure.
      *
-     * @param string $role
-     * @param string $resource
-     * @param string $privilege
-     * @param {Object} $dfs
+     * @param {string} role
+     * @param {string} [resource=null] resource
+     * @param {string} [privilege=null] privilege
+     * @param {Object} [dfs=null] dfs
      * @return bool|null
      */
-    function roleDFSVisitOnePrivilege(role, resource /*null*/, privilege /*null*/, dfs /*null*/) {
+    function roleDFSVisitOnePrivilege(role, resource, privilege, dfs) {
         resource = typeof resource === 'undefined' ? null : resource;
         privilege = typeof privilege === 'undefined' ? null : privilege;
         dfs = typeof dfs === 'undefined' ? null : dfs;
@@ -903,7 +903,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     /**
      * Returns all child resources from the given resource.
      *
-     * @param string resource
+     * @param {string} resource
      * @return []
      */
     function getChildResources(resource){
