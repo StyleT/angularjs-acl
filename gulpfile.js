@@ -50,9 +50,10 @@ gulp.task('compile', function () {
         .pipe(gulp.dest('./dist'));
 });
 
-gulp.task('test', ['compile'], function (done) {
+gulp.task('test', ['lint', 'compile'], function (done) {
     new karmaServer({
-        configFile: __dirname + '/karma.conf.js'
+        configFile: __dirname + '/karma.conf.js',
+        browsers: ['PhantomJS']
     }, done).start();
 });
 
