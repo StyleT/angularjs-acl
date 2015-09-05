@@ -330,12 +330,12 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      */
     this.getResource = function (resource)
     {
-        if (resource instanceof Object && typeof resource.getResourceId === 'function') {
-            resource = resource.getResourceId();
-        }
-
         if (!self.hasResource(resource)) {
             throw new Error("Resource '$resourceId' not found");
+        }
+
+        if (resource instanceof Object && typeof resource.getResourceId === 'function') {
+            resource = resource.getResourceId();
         }
 
         return _resources[resource].id;
@@ -346,11 +346,56 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * The $resource parameter can either be a Resource or a Resource identifier.
      *
-     * @param {string} resource
+     * @param {(string|AclResourceInterface)} resource
      * @return {boolean}
      */
     this.hasResource = function (resource) {
+        if (resource instanceof Object && typeof resource.getResourceId === 'function') {
+            resource = resource.getResourceId();
+        }
+
         return _resources[resource] !== undefined;
+    };
+
+    /**
+     * Removes a Resource and all of its children
+     *
+     * The $resource parameter can either be a Resource or a Resource identifier.
+     *
+     * @param  {(string|AclResourceInterface)} resource
+     * @return {AclService} Provides a fluent interface
+     */
+    this.removeResource = function (resource) {
+        if (!self.hasResource(resource)) {
+            throw new Error("Resource '$resourceId' not found");
+        }
+
+        if (resource instanceof Object && typeof resource.getResourceId === 'function') {
+            resource = resource.getResourceId();
+        }
+
+        var resourcesRemoved = [resource];
+        var resourceParent = _resources[resource].parent;
+        if (resourceParent !== null) {
+            _resources[resourceParent].children.splice(_resources[resourceParent].children.indexOf(resource), 1);
+        }
+
+        _resources[resource].children.forEach(function(child) {
+            self.removeResource(child);
+            resourcesRemoved.push(child);
+        });
+
+        resourcesRemoved.forEach(function(resourceRemoved) {
+            for (var resourceCurrent in _rules.byResourceId) {
+                if (resourceRemoved === resourceCurrent) {
+                    delete _rules.byResourceId[resourceCurrent];
+                }
+            }
+        });
+
+        delete _resources[resource];
+
+        return self;
     };
 
     /**

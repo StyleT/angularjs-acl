@@ -27,19 +27,42 @@ describe('ncAclService', function () {
         resourceStub.resourceId = 'test';
     });
 
-    describe('getUserIdentity()', function () {
+    describe('get/set UserIdentity', function () {
 
         it('should throw error with empty entity', function () {
             expect(AclService.getUserIdentity).toThrow();
         });
 
-    });
-
-    describe('setUserIdentity()', function () {
-
         it('should return valid entity', function () {
             AclService.setUserIdentity(userIdentityStub);
             expect(AclService.getUserIdentity).not.toThrow();
+        });
+
+        it('should return AclService object', function () {
+            expect(AclService.setUserIdentity(userIdentityStub)).toEqual(AclService);
+        });
+
+    });
+
+    describe('Resource management', function () {
+
+        it('should remove single resource', function () {
+            AclService.addResource('User');
+            AclService.addResource('Manager', 'User');
+            AclService.addResource('God', 'Manager');
+
+            expect(AclService.hasResource('Manager')).toBeTruthy();
+
+            AclService.removeResource('Manager');
+
+            expect(AclService.hasResource('Manager')).toBeFalsy();
+            expect(AclService.hasResource('God')).toBeFalsy();
+        });
+
+        it('should throw Exception during removal of unexisted resource', function () {
+            expect(function() {
+                AclService.removeResource('unexisted');
+            }).toThrow();
         });
 
     });
