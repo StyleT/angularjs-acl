@@ -248,8 +248,6 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
                 var rules;
                 if ((rules = getRules(resource, null)) !== null) {
                     for (privilege in rules.byPrivilegeId) {
-                        var rule = rules.byPrivilegeId[privilege];
-
                         if (self.TYPE_DENY === getRuleType(resource, null, privilege)) {
                             return false;
                         }
