@@ -413,10 +413,10 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * highest priority.
      *
      * @param  {string} role
-     * @param  {string|Array} parents
+     * @param  {(string|Array)} [parents=null] parents
      * @return {AclService} Provides a fluent interface
      */
-    this.addRole = function (role, parents /*null*/) {
+    this.addRole = function (role, parents) {
         parents = typeof parents === 'undefined' ? null : parents;
 
         _roleRegistry.add(role, parents);
@@ -459,13 +459,39 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * @param  {string} role
      * @param  {string} inherit
-     * @param  {boolean} onlyParents
+     * @param  {boolean} [onlyParents=false] onlyParents
      * @return {boolean}
      */
-    this.inheritsRole = function (role, inherit, onlyParents /*false*/) {
+    this.inheritsRole = function (role, inherit, onlyParents) {
         onlyParents = typeof onlyParents === 'undefined' ? false : onlyParents;
 
         return _roleRegistry.inherits(role, inherit, onlyParents);
+    };
+
+    /**
+     * Removes the Role from the registry
+     *
+     * The $role parameter can either be a Role or a Role identifier.
+     *
+     * @param  {string} role
+     * @return {AclService} Provides a fluent interface
+     */
+    this.removeRole = function (role) {
+        _roleRegistry.remove(role);
+
+        if (_rules.allResources.byRoleId[role] !== undefined) {
+            delete _rules.allResources.byRoleId[role];
+        }
+
+        for (var resourceCurrent in _rules.byResourceId) {
+            var visitor = _rules.byResourceId[resourceCurrent];
+
+            if (visitor.byRoleId !== undefined && visitor.byRoleId[role] !== undefined) {
+                delete visitor.byRoleId[role];
+            }
+        }
+
+        return self;
     };
 
 

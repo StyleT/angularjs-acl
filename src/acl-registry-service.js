@@ -88,10 +88,7 @@ angular.module('stylet.acl').factory('AclRegistryService', function () {
             }
 
             _storage[item].children.forEach(function (child) {
-                var index = _storage[child].parents.indexOf(item);
-                if (index !== -1) {
-                    _storage[child].parents.splice(index, 1);
-                }
+                self.remove(child);
             });
             _storage[item].parents.forEach(function (parent) {
                 var index = _storage[parent].children.indexOf(item);

@@ -44,19 +44,42 @@ describe('ncAclService', function () {
 
     });
 
+    describe('Role management', function () {
+
+        it('basic role adding/removal', function () {
+            AclService.addRole('User');
+            AclService.addRole('Manager', 'User');
+            AclService.addRole('God', 'Manager');
+
+            expect(AclService.hasRole('Manager')).toBeTruthy();
+
+            AclService.removeRole('Manager');
+
+            expect(AclService.hasRole('Manager')).toBeFalsy();
+            expect(AclService.hasRole('God')).toBeFalsy();
+        });
+
+        it('should throw Exception during removal of unexisted role', function () {
+            expect(function() {
+                AclService.removeRole('unexisted');
+            }).toThrow();
+        });
+
+    });
+
     describe('Resource management', function () {
 
         it('should remove single resource', function () {
-            AclService.addResource('User');
-            AclService.addResource('Manager', 'User');
-            AclService.addResource('God', 'Manager');
+            AclService.addResource('Animal');
+            AclService.addResource('Cat', 'Animal');
+            AclService.addResource('Kitty', 'Cat');
 
-            expect(AclService.hasResource('Manager')).toBeTruthy();
+            expect(AclService.hasResource('Cat')).toBeTruthy();
 
-            AclService.removeResource('Manager');
+            AclService.removeResource('Cat');
 
-            expect(AclService.hasResource('Manager')).toBeFalsy();
-            expect(AclService.hasResource('God')).toBeFalsy();
+            expect(AclService.hasResource('Cat')).toBeFalsy();
+            expect(AclService.hasResource('Kitty')).toBeFalsy();
         });
 
         it('should throw Exception during removal of unexisted resource', function () {
