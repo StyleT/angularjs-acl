@@ -52,6 +52,7 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
     self.TYPE_DENY  = 'TYPE_DENY';
     self.OP_ADD = 'OP_ADD';
     self.OP_REMOVE = 'OP_REMOVE';
+    self.USER_IDENTITY_ROLE = 'stylet.acl.role';
 
     var _userIdentity = null;
     var _roleRegistry = new AclRegistryService();// jshint ignore:line
@@ -72,13 +73,9 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
     var _isAllowedResource = null;
 
     /**
-     * @returns {AclRoleInterface}
+     * @returns {{AclRoleInterface|null}}
      */
     this.getUserIdentity = function () {
-        if (!(_userIdentity instanceof Object) || _userIdentity === null || typeof _userIdentity.getRoles !== 'function') {
-            throw new Error('Incorrect user identity');
-        }
-
         return _userIdentity;
     };
 
@@ -91,7 +88,20 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
             throw new Error('Incorrect user identity');
         }
 
+        if (self.hasRole(self.USER_IDENTITY_ROLE)) {
+            self.removeRole(self.USER_IDENTITY_ROLE);
+        }
+
+        self.addRole(self.USER_IDENTITY_ROLE, identity.getRoles());
+
         _userIdentity = identity;
+
+        return self;
+    };
+
+    this.clearUserIdentity = function () {
+        _userIdentity = null;
+        self.removeRole(self.USER_IDENTITY_ROLE);
 
         return self;
     };
@@ -105,17 +115,11 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
         resource = typeof resource === 'undefined' ? null : resource;
         privilege = typeof privilege === 'undefined' ? null : privilege;
 
-        var userRoles = self.getUserIdentity().getRoles();
-
-        for (var i = 0; i < userRoles.length; i++) {
-            var role = userRoles[i];
-
-            if (self.isAllowed(role, resource, privilege)) {
-                return true;
-            }
+        if (self.getUserIdentity() === null) {
+            throw new Error('User identity is null');
         }
 
-        return false;
+        return self.isAllowed(self.USER_IDENTITY_ROLE, resource, privilege);
     };
 
     /**
@@ -1057,7 +1061,7 @@ angular.module('stylet.acl').factory('AclRegistryService', function () {
 
                 parents.forEach(function (parent) {
                     if (!self.has(parent)) {
-                        throw new Error('Item parent "' + item + '" not exists in the registry');
+                        throw new Error('Parent role "' + parent + '" for "' + item + '" not exists in the registry');
                     }
 
                     itemParents.push(parent);
@@ -1101,7 +1105,7 @@ angular.module('stylet.acl').factory('AclRegistryService', function () {
                 throw new Error('Items not exists in the registry');
             }
 
-            var inherits = _storage[item].parents[inherit] !== undefined;
+            var inherits = _storage[item].parents.indexOf(inherit) !== -1;
 
             if (inherits || onlyParents) {
                 return inherits;

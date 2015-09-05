@@ -21,7 +21,7 @@ angular.module('stylet.acl').factory('AclRegistryService', function () {
 
                 parents.forEach(function (parent) {
                     if (!self.has(parent)) {
-                        throw new Error('Item parent "' + item + '" not exists in the registry');
+                        throw new Error('Parent role "' + parent + '" for "' + item + '" not exists in the registry');
                     }
 
                     itemParents.push(parent);
@@ -65,7 +65,7 @@ angular.module('stylet.acl').factory('AclRegistryService', function () {
                 throw new Error('Items not exists in the registry');
             }
 
-            var inherits = _storage[item].parents[inherit] !== undefined;
+            var inherits = _storage[item].parents.indexOf(inherit) !== -1;
 
             if (inherits || onlyParents) {
                 return inherits;

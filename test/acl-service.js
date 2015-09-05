@@ -27,19 +27,56 @@ describe('ncAclService', function () {
         resourceStub.resourceId = 'test';
     });
 
-    describe('get/set UserIdentity', function () {
+    describe('UserIdentity management', function () {
 
-        it('should throw error with empty entity', function () {
-            expect(AclService.getUserIdentity).toThrow();
+        it('should return null by default', function () {
+            expect(AclService.getUserIdentity()).toEqual(null);
         });
 
-        it('should return valid entity', function () {
+        it('should set valid user identity', function () {
+            userIdentityStub.roles = [];
             AclService.setUserIdentity(userIdentityStub);
-            expect(AclService.getUserIdentity).not.toThrow();
+            expect(AclService.getUserIdentity()).toEqual(userIdentityStub);
+        });
+
+        it('should create inherited role for user identity or replace old one if it exists', function () {
+            AclService.addRole('Guest');
+            AclService.addRole('User');
+            AclService.addRole('Admin');
+
+            userIdentityStub.roles = ['User', 'Guest'];
+            AclService.setUserIdentity(userIdentityStub);
+
+            expect(AclService.hasRole(AclService.USER_IDENTITY_ROLE)).toBeTruthy();
+            expect(AclService.inheritsRole(AclService.USER_IDENTITY_ROLE, 'Guest')).toBeTruthy();
+            expect(AclService.inheritsRole(AclService.USER_IDENTITY_ROLE, 'User')).toBeTruthy();
+            expect(AclService.inheritsRole(AclService.USER_IDENTITY_ROLE, 'Admin')).toBeFalsy();
+
+            userIdentityStub.roles = ['Admin'];
+            AclService.setUserIdentity(userIdentityStub);
+            expect(AclService.inheritsRole(AclService.USER_IDENTITY_ROLE, 'Admin')).toBeTruthy();
+            expect(AclService.inheritsRole(AclService.USER_IDENTITY_ROLE, 'Guest')).toBeFalsy();
+            expect(AclService.inheritsRole(AclService.USER_IDENTITY_ROLE, 'User')).toBeFalsy();
+        });
+
+        it('should throw error with invalid user identity', function () {
+            expect(function() {
+                AclService.setUserIdentity({});
+            }).toThrow();
         });
 
         it('should return AclService object', function () {
+            userIdentityStub.roles = [];
             expect(AclService.setUserIdentity(userIdentityStub)).toEqual(AclService);
+        });
+
+        it('should clean previously specified entity', function () {
+            userIdentityStub.roles = [];
+            AclService.setUserIdentity(userIdentityStub);
+            expect(AclService.getUserIdentity()).toEqual(userIdentityStub);
+
+            AclService.clearUserIdentity();
+            expect(AclService.getUserIdentity()).toEqual(null);
         });
 
     });
