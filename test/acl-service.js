@@ -143,6 +143,35 @@ describe('ncAclService', function () {
             }).toThrow();
         });
 
+        it('ensures that an exception is thrown when a non-existent resource is specified to each parameter of inherits()', function () {
+            AclService.addResource('Animal');
+
+            expect(function() {
+                AclService.inheritsResource('nonexistent', 'Animal');
+            }).toThrow();
+
+            expect(function() {
+                AclService.inheritsResource('Animal', 'nonexistent');
+            }).toThrow();
+        });
+
+        it('tests basic resource inheritance', function () {
+            AclService.addResource('city');
+            AclService.addResource('building', 'city');
+            AclService.addResource('room', 'building');
+
+            expect(AclService.inheritsResource('building', 'city', true)).toBeTruthy();
+            expect(AclService.inheritsResource('room', 'building', true)).toBeTruthy();
+            expect(AclService.inheritsResource('room', 'city')).toBeTruthy();
+            expect(AclService.inheritsResource('room', 'city', true)).toBeFalsy();
+            expect(AclService.inheritsResource('city', 'building')).toBeFalsy();
+            expect(AclService.inheritsResource('building', 'room')).toBeFalsy();
+            expect(AclService.inheritsResource('city', 'room')).toBeFalsy();
+
+            AclService.removeResource('building');
+            expect(AclService.hasResource('room')).toBeFalsy();
+        });
+
     });
 
     describe('can()', function () {

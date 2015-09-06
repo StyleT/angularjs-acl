@@ -297,10 +297,10 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
      * the existing Resource from which the newly added Resource will inherit.
      *
      * @param  {string} resource
-     * @param  {string} parent
+     * @param  {string} [parent=null] parent
      * @return {AclService} Provides a fluent interface
      */
-    this.addResource = function (resource, parent /*null*/) {
+    this.addResource = function (resource, parent) {
         parent = typeof parent === 'undefined' ? null : parent;
 
         var resourceId = resource;
@@ -361,6 +361,47 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
         }
 
         return _resources[resource] !== undefined;
+    };
+
+    /**
+     * Returns true if and only if $resource inherits from $inherit
+     *
+     * Both parameters may be either a Resource or a Resource identifier. If
+     * $onlyParent is true, then $resource must inherit directly from
+     * $inherit in order to return true. By default, this method looks
+     * through the entire inheritance tree to determine whether $resource
+     * inherits from $inherit through its ancestor Resources.
+     *
+     * @param {(AclResourceInterface|string)} resource
+     * @param {(AclResourceInterface|string)} inherit
+     * @param {boolean} [onlyParent=false] onlyParent
+     * @return {boolean}
+     */
+    this.inheritsResource = function (resource, inherit, onlyParent) {
+        resource = self.getResource(resource);
+        inherit = self.getResource(inherit);
+
+        var parentId = null;
+
+        if (_resources[resource].parent !== null) {
+            parentId = _resources[resource].parent;
+            if (parentId === inherit) {
+                return true;
+            } else if (onlyParent) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+
+        while (_resources[parentId].parent !== null) {
+            parentId = _resources[parentId].parent;
+            if (inherit === parentId) {
+                return true;
+            }
+        }
+
+        return false;
     };
 
     /**
