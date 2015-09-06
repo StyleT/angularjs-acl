@@ -446,6 +446,25 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
     };
 
     /**
+     * Removes all Resources
+     *
+     * @return {AclService} Provides a fluent interface
+     */
+    this.removeResourceAll = function () {
+        for (var resourceId in _resources) {
+            for (var resourceIdCurrent in _rules.byResourceId) {
+                if (resourceId === resourceIdCurrent) {
+                    delete _rules.byResourceId[resourceIdCurrent];
+                }
+            }
+        }
+
+        _resources = {};
+
+        return self;
+    };
+
+    /**
      * Adds a Role having an identifier unique to the registry
      *
      * The $parents parameter may be a reference to, or the string identifier for,
@@ -754,13 +773,12 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
      *
      * If the $create parameter is true, then a rule set is first created and then returned to the caller.
      *
-     * @param  resource
-     * @param  role
-     * @param  create
+     * @param {string} [resource=null] resource
+     * @param {string} [role=null] role
+     * @param {boolean} [create=false] create
      * @return {Object|null}
      */
-    function getRules (resource /*null*/, role /*null*/, create /*false*/)
-    {
+    function getRules (resource, role, create) {
         resource = typeof resource === 'undefined' ? null : resource;
         role = typeof role === 'undefined' ? null : role;
         create = typeof create === 'undefined' ? false : create;
@@ -790,7 +808,7 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
                 if (!create) {
                     return null;
                 }
-                visitor.allRoles.byPrivilegeId = {};
+                set(visitor, 'allRoles.byPrivilegeId', {});
             }
             return visitor.allRoles;
         }

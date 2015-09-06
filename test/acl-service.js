@@ -1,7 +1,9 @@
 'use strict';
 
 describe('ncAclService', function () {
+    /** @type {AclService} */
     var AclService;
+
     var userIdentityStub = {
         roles: null,
         getRoles: function () {
@@ -125,9 +127,10 @@ describe('ncAclService', function () {
     describe('Resource management', function () {
 
         it('should remove single resource', function () {
-            AclService.addResource('Animal');
-            AclService.addResource('Cat', 'Animal');
-            AclService.addResource('Kitty', 'Cat');
+            AclService
+                .addResource('Animal')
+                .addResource('Cat', 'Animal')
+                .addResource('Kitty', 'Cat');
 
             expect(AclService.hasResource('Cat')).toBeTruthy();
 
@@ -156,9 +159,10 @@ describe('ncAclService', function () {
         });
 
         it('tests basic resource inheritance', function () {
-            AclService.addResource('city');
-            AclService.addResource('building', 'city');
-            AclService.addResource('room', 'building');
+            AclService
+                .addResource('city')
+                .addResource('building', 'city')
+                .addResource('room', 'building');
 
             expect(AclService.inheritsResource('building', 'city', true)).toBeTruthy();
             expect(AclService.inheritsResource('room', 'building', true)).toBeTruthy();
@@ -170,6 +174,28 @@ describe('ncAclService', function () {
 
             AclService.removeResource('building');
             expect(AclService.hasResource('room')).toBeFalsy();
+        });
+
+        it('ensures that removal of all resources works', function () {
+            AclService
+                .addResource('Animal')
+                .addResource('Fish')
+                .removeResourceAll();
+
+            expect(AclService.hasResource('Animal')).toBeFalsy();
+            expect(AclService.hasResource('Fish')).toBeFalsy();
+        });
+
+        it('ensures that removal of all resources results in Resource-specific rules being removed', function () {
+            AclService
+                .addResource('Animal')
+                .allow(null, 'Animal');
+
+            expect(AclService.isAllowed(null, 'Animal')).toBeTruthy();
+
+            AclService.removeResourceAll().addResource('Animal');
+
+            expect(AclService.isAllowed(null, 'Animal')).toBeFalsy();
         });
 
     });
