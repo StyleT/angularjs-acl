@@ -302,6 +302,10 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     this.addResource = function (resource, parent) {
         parent = typeof parent === 'undefined' ? null : parent;
 
+        if (typeof resource !== 'string' || resource === '') {
+            throw new Error('addResource() expects resource to be a not empty string');
+        }
+
         var resourceId = resource;
 
         if (self.hasResource(resourceId)) {

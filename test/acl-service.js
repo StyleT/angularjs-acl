@@ -190,8 +190,21 @@ describe('ncAclService', function () {
 
         it('should throw Exception during removal of unexisted resource', function () {
             expect(function() {
-                AclService.removeResource('unexisted');
+                AclService.removeResource('nonexistent');
             }).toThrow();
+        });
+
+        it('ensures that an exception is thrown when a non-existent Resource is specified as a parent upon Resource addition', function () {
+            expect(function() {
+                AclService.addResource('Animal', 'nonexistent');
+            }).toThrowError();
+        });
+
+        it('ensures that the same Resource cannot be added more than once', function () {
+            AclService.addResource('tst');
+            expect(function() {
+                AclService.addResource('tst');
+            }).toThrowError();
         });
 
         it('ensures that an exception is thrown when a non-existent resource is specified to each parameter of inherits()', function () {
@@ -204,6 +217,15 @@ describe('ncAclService', function () {
             expect(function() {
                 AclService.inheritsResource('Animal', 'nonexistent');
             }).toThrow();
+        });
+
+        it('ensures that an exception is thrown when a not Resource is passed', function () {
+            expect(function() {
+                AclService.addResource({});
+            }).toThrowError(/expects resource to be/);
+            expect(function() {
+                AclService.addResource('');
+            }).toThrowError(/expects resource to be/);
         });
 
         it('tests basic resource inheritance', function () {
