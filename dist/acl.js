@@ -500,6 +500,27 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
         return self;
     };
 
+    /**
+     * Removes all Roles from the registry
+     *
+     * @return {AclService} Provides a fluent interface
+     */
+    this.removeRoleAll = function () {
+        _roleRegistry.removeAll();
+
+        for (var roleCurrent in _rules.allResources.byRoleId) {
+            delete _rules.allResources.byRoleId[roleCurrent];
+        }
+
+        for (var resourceCurrent in _rules.byResourceId) {
+            for (var roleIdCurrent in _rules.byResourceId[resourceCurrent].byRoleId) {
+                delete _rules.byResourceId[resourceCurrent].byRoleId[roleIdCurrent];
+            }
+        }
+
+        return self;
+    };
+
 
     /**
      * Performs operations on ACL rules

@@ -102,6 +102,24 @@ describe('ncAclService', function () {
             }).toThrow();
         });
 
+        it('ensures that removal of all Roles works', function () {
+            AclService.addRole('Guest');
+            expect(AclService.hasRole('Guest')).toBeTruthy();
+
+            AclService.removeRoleAll();
+            expect(AclService.hasRole('Guest')).toBeFalsy();
+        });
+
+        it('ensures that removal of all Roles results in Role-specific rules being removed', function () {
+            AclService.addRole('Guest').allow('Guest');
+            expect(AclService.isAllowed('Guest')).toBeTruthy();
+
+            AclService.removeRoleAll();
+
+            AclService.addRole('Guest');
+            expect(AclService.isAllowed('Guest')).toBeFalsy();
+        });
+
     });
 
     describe('Resource management', function () {
