@@ -85,6 +85,18 @@ describe('ncAclService', function () {
 
     describe('Role management', function () {
 
+        it('ensures that getRoles() method works as expected', function () {
+            expect(AclService.getRoles()).toEqual([]);
+
+            AclService
+                .addRole('guest')
+                .addRole('staff', 'guest')
+                .addRole('editor', 'staff')
+                .addRole('administrator');
+
+            expect(AclService.getRoles()).toEqual(['guest', 'staff', 'editor', 'administrator']);
+        });
+
         it('basic role adding/removal', function () {
             AclService.addRole('User');
             AclService.addRole('Manager', 'User');
@@ -125,6 +137,18 @@ describe('ncAclService', function () {
     });
 
     describe('Resource management', function () {
+
+        it('ensures that getResources() method works as expected', function () {
+            expect(AclService.getResources()).toEqual([]);
+
+            AclService
+                .addResource('Animal')
+                .addResource('Cat', 'Animal')
+                .addResource('Kitty', 'Cat')
+                .addResource('Rock');
+
+            expect(AclService.getResources()).toEqual(['Animal', 'Cat', 'Kitty', 'Rock']);
+        });
 
         it('should remove single resource', function () {
             AclService

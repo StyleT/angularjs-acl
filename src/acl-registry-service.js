@@ -1,3 +1,7 @@
+/**
+ * @ngdoc service
+ * @name AclRegistryService
+ */
 angular.module('stylet.acl').factory('AclRegistryService', function () {
     'use strict';
 

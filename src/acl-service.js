@@ -347,6 +347,13 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     };
 
     /**
+     * @return {Array.<string>} of registered resources
+     */
+    this.getResources = function () {
+        return Object.keys(_resources);
+    };
+
+    /**
      * Returns true if and only if the Resource exists in the ACL
      *
      * The $resource parameter can either be a Resource or a Resource identifier.
@@ -478,7 +485,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * highest priority.
      *
      * @param  {string} role
-     * @param  {(string|Array)} [parents=null] parents
+     * @param  {(string|Array.<string>)} [parents=null] parents
      * @return {AclService} Provides a fluent interface
      */
     this.addRole = function (role, parents) {
@@ -499,6 +506,13 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      */
     this.getRole = function (role) {
         return _roleRegistry.get(role);
+    };
+
+    /**
+     * @return {Array.<string>} of registered roles
+     */
+    this.getRoles = function () {
+        return Object.keys(_roleRegistry.getItems());
     };
 
     /**
