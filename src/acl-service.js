@@ -491,6 +491,10 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     this.addRole = function (role, parents) {
         parents = typeof parents === 'undefined' ? null : parents;
 
+        if (typeof role !== 'string' || role === '') {
+            throw new Error('addRole() expects role to be a not empty string');
+        }
+
         _roleRegistry.add(role, parents);
 
         return self;

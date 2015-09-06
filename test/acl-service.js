@@ -85,6 +85,15 @@ describe('ncAclService', function () {
 
     describe('Role management', function () {
 
+        it('ensures that basic addition and retrieval of a single Role works', function () {
+            expect(AclService.getRoles()).toEqual([]);
+
+            var role = AclService.addRole('guest').getRole('guest');
+
+            expect(role).toEqual('guest');
+            expect(AclService.getRole('guest')).toEqual('guest');
+        });
+
         it('ensures that getRoles() method works as expected', function () {
             expect(AclService.getRoles()).toEqual([]);
 
@@ -132,6 +141,21 @@ describe('ncAclService', function () {
 
             AclService.addRole('Guest');
             expect(AclService.isAllowed('Guest')).toBeFalsy();
+        });
+
+        it('ensures that an exception is thrown when a non-existent Role is specified as a parent upon Role addition', function () {
+            expect(function() {
+                AclService.addRole('tst', 'unexisted');
+            }).toThrow();
+        });
+
+        it('ensures that an exception is thrown when a not Role is passed', function () {
+            expect(function() {
+                AclService.addRole({});
+            }).toThrowError(/expects role to be/);
+            expect(function() {
+                AclService.addRole('');
+            }).toThrowError(/expects role to be/);
         });
 
     });
