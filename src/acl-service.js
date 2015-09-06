@@ -73,7 +73,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     var _isAllowedRole = null;
 
     /**
-     * @returns {{AclRoleInterface|null}}
+     * @returns {(AclRoleInterface|null)}
      */
     this.getUserIdentity = function () {
         return _userIdentity;
@@ -107,8 +107,8 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     };
 
     /**
-     * @param {(string|AclResourceInterface)} [resource=null] resource
-     * @param {string} [privilege=null] privilege
+     * @param {(string|AclResourceInterface)} [resource=null]
+     * @param {string} [privilege=null]
      * @returns {boolean}
      */
     this.can = function (resource, privilege) {
@@ -125,9 +125,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     /**
      * Adds an "allow" rule to the ACL
      *
-     * @param {(string|Array)} [roles=null] roles
-     * @param {(string|Array)} [resources=null] resources
-     * @param {(string|Array)} [privileges=null] privileges
+     * @param {(string|Array)} [roles=null]
+     * @param {(string|Array)} [resources=null]
+     * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
      * @return {AclService} Provides a fluent interface
      */
@@ -143,9 +143,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     /**
      * Adds a "deny" rule to the ACL
      *
-     * @param {(string|Array)} [roles=null] roles
-     * @param {(string|Array)} [resources=null] resources
-     * @param {(string|Array)} [privileges=null] privileges
+     * @param {(string|Array)} [roles=null]
+     * @param {(string|Array)} [resources=null]
+     * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
      * @return {AclService} Provides a fluent interface
      */
@@ -161,9 +161,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     /**
      * Removes an "allow" rule from the ACL
      *
-     * @param {(string|Array)} [roles=null] roles
-     * @param {(string|Array)} [resources=null] resources
-     * @param {(string|Array)} [privileges=null] privileges
+     * @param {(string|Array)} [roles=null]
+     * @param {(string|Array)} [resources=null]
+     * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
      * @return {AclService} Provides a fluent interface
      */
@@ -179,9 +179,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     /**
      * Removes an "deny" rule from the ACL
      *
-     * @param {(string|Array)} [roles=null] roles
-     * @param {(string|Array)} [resources=null] resources
-     * @param {(string|Array)} [privileges=null] privileges
+     * @param {(string|Array)} [roles=null]
+     * @param {(string|Array)} [resources=null]
+     * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
      * @return {AclService} Provides a fluent interface
      */
@@ -215,9 +215,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * and its respective parents are checked similarly before the lower-priority parents of
      * the Role are checked.
      *
-     * @param  {string} [role=null] role
-     * @param  {string|AclResourceInterface} [resource=null] resource
-     * @param  {string} [privilege=null] privilege
+     * @param  {string} [role=null]
+     * @param  {string|AclResourceInterface} [resource=null]
+     * @param  {string} [privilege=null]
      * @return {boolean}
      */
     this.isAllowed = function (role, resource, privilege) {
@@ -296,7 +296,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * the existing Resource from which the newly added Resource will inherit.
      *
      * @param  {string} resource
-     * @param  {string} [parent=null] parent
+     * @param  {string} [parent=null]
      * @return {AclService} Provides a fluent interface
      */
     this.addResource = function (resource, parent) {
@@ -380,7 +380,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * @param {(AclResourceInterface|string)} resource
      * @param {(AclResourceInterface|string)} inherit
-     * @param {boolean} [onlyParent=false] onlyParent
+     * @param {boolean} [onlyParent=false]
      * @return {boolean}
      */
     this.inheritsResource = function (resource, inherit, onlyParent) {
@@ -485,7 +485,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * highest priority.
      *
      * @param  {string} role
-     * @param  {(string|Array.<string>)} [parents=null] parents
+     * @param  {(string|Array.<string>)} [parents=null]
      * @return {AclService} Provides a fluent interface
      */
     this.addRole = function (role, parents) {
@@ -542,7 +542,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * @param  {string} role
      * @param  {string} inherit
-     * @param  {boolean} [onlyParents=false] onlyParents
+     * @param  {boolean} [onlyParents=false]
      * @return {boolean}
      */
     this.inheritsRole = function (role, inherit, onlyParents) {
@@ -642,10 +642,10 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * @param  {string} operation
      * @param  {string} type
-     * @param  {string|Array.<string>} [roles=null] roles
-     * @param  {string|Array.<string>} [resources=null] resources
-     * @param  {string|Array.<string>} [privileges=null] privileges
-     * @param  {function} [assert=null] assert
+     * @param  {string|Array.<string>} [roles=null]
+     * @param  {string|Array.<string>} [resources=null]
+     * @param  {string|Array.<string>} [privileges=null]
+     * @param  {function} [assert=null]
      * @return {AclService} Provides a fluent interface
      */
     function setRule (
@@ -790,9 +790,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      *
      * If the $create parameter is true, then a rule set is first created and then returned to the caller.
      *
-     * @param {string} [resource=null] resource
-     * @param {string} [role=null] role
-     * @param {boolean} [create=false] create
+     * @param {string} [resource=null]
+     * @param {string} [role=null]
+     * @param {boolean} [create=false]
      * @return {Object|null}
      */
     function getRules (resource, role, create) {
@@ -848,8 +848,8 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * then this method returns false. If no applicable rule is found, then this method returns null.
      *
      * @param {string} role
-     * @param {string} [resource=null] resource
-     * @return bool|null
+     * @param {string} [resource=null]
+     * @return {(boolean|null)}
      */
     function roleDFSAllPrivileges(role, resource){
         var dfs = {
@@ -883,9 +883,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * This method is used by the internal depth-first search algorithm and may modify the DFS data structure.
      *
      * @param {string} role
-     * @param {string} [resource=null] resource
-     * @param {Object} [dfs=null] dfs
-     * @return {boolean|null}
+     * @param {string} [resource=null]
+     * @param {Object} [dfs=null]
+     * @return {(boolean|null)}
      */
     function roleDFSVisitAllPrivileges(role, resource, dfs) {
         resource = typeof resource === 'undefined' ? null : resource;
@@ -926,9 +926,9 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * then this method returns false. If no applicable rule is found, then this method returns null.
      *
      * @param {string} role
-     * @param {string} [resource=null] resource
-     * @param {string} [privilege=null] privilege
-     * @return {boolean|null}
+     * @param {string} [resource=null]
+     * @param {string} [privilege=null]
+     * @return {(boolean|null)}
      */
     function roleDFSOnePrivilege(role, resource, privilege) {
         resource = typeof resource === 'undefined' ? null : resource;
@@ -970,10 +970,10 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * This method is used by the internal depth-first search algorithm and may modify the DFS data structure.
      *
      * @param {string} role
-     * @param {string} [resource=null] resource
-     * @param {string} [privilege=null] privilege
-     * @param {Object} [dfs=null] dfs
-     * @return bool|null
+     * @param {string} [resource=null]
+     * @param {string} [privilege=null]
+     * @param {Object} [dfs=null]
+     * @return {(boolean|null)}
      */
     function roleDFSVisitOnePrivilege(role, resource, privilege, dfs) {
         resource = typeof resource === 'undefined' ? null : resource;
@@ -1019,10 +1019,10 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
      * If all three parameters are null, then the default ACL rule type is returned,
      * based on whether its assertion method passes.
      *
-     * @param  {null|string} [resource=null] resource
-     * @param  {null|string} [role=null] role
-     * @param  {null|string} [privilege=null] privilege
-     * @return {string|null}
+     * @param  {null|string} [resource=null]
+     * @param  {null|string} [role=null]
+     * @param  {null|string} [privilege=null]
+     * @return {(string|null)}
      */
     function getRuleType(resource, role, privilege) {
         resource = typeof resource === 'undefined' ? null : resource;
