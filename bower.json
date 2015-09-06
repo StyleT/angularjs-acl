@@ -1,7 +1,7 @@
 {
-  "name": "ng-acl",
+  "name": "angularjs-acl",
   "version": "0.1.0",
-  "homepage": "https://github.com/StyleT/ng-acl",
+  "homepage": "https://github.com/StyleT/angularjs-acl",
   "authors": [
     "Vladlen Fedosov <vlad.fedosov@gmail.com>"
   ],

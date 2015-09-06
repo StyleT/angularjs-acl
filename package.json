@@ -1,5 +1,5 @@
 {
-  "name": "ng-acl",
+  "name": "angularjs-acl",
   "version": "0.1.0",
   "description": "Provides a lightweight and flexible ACL implementation for privileges management in AngularJS",
   "main": "./dist/acl.js",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/StyleT/ng-acl.git"
+    "url": "git+https://github.com/StyleT/angularjs-acl.git"
   },
   "keywords": [
     "acl",
@@ -21,9 +21,9 @@
   "author": "Vlad Fedosov <vlad.fedosov@gmail.com>",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/StyleT/ng-acl/issues"
+    "url": "https://github.com/StyleT/angularjs-acl/issues"
   },
-  "homepage": "https://github.com/StyleT/ng-acl#readme",
+  "homepage": "https://github.com/StyleT/angularjs-acl#readme",
   "devDependencies": {
     "bower": "~1.4.1",
     "gulp": "*",
