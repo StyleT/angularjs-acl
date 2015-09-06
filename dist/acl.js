@@ -1,4 +1,4 @@
-angular.module('stylet.acl', []);
+angular.module('ng-acl', []);
 /**
  * @interface AclResourceInterface
  */
@@ -44,7 +44,7 @@ angular.module('stylet.acl', []);
  *    Provides a lightweight and flexible access control list (ACL) implementation for privileges management.
  *    In general, an application may utilize such ACL‘s to control access to certain protected objects by other requesting objects.
  */
-angular.module('stylet.acl').service('AclService', ["AclRegistryService", function (AclRegistryService) {
+angular.module('ng-acl').service('AclService', ["AclRegistryService", function (AclRegistryService) {
     'use strict';
     var self = this;
 
@@ -52,7 +52,7 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
     self.TYPE_DENY  = 'TYPE_DENY';
     self.OP_ADD = 'OP_ADD';
     self.OP_REMOVE = 'OP_REMOVE';
-    self.USER_IDENTITY_ROLE = 'stylet.acl.role';
+    self.USER_IDENTITY_ROLE = 'ng-acl.role';
 
     var _userIdentity = null;
     var _roleRegistry = new AclRegistryService();// jshint ignore:line
@@ -1146,7 +1146,7 @@ angular.module('stylet.acl').service('AclService', ["AclRegistryService", functi
  * @name AclRegistryService
  * @description AclRegistryService factory
  */
-angular.module('stylet.acl').factory('AclRegistryService', function () {
+angular.module('ng-acl').factory('AclRegistryService', function () {
     'use strict';
 
     /**

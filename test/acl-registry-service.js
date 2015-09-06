@@ -4,7 +4,7 @@ describe('AclRegistryService', function () {
     /** @type {AclRegistryService} */
     var AclRegistryService;
 
-    beforeEach(module('stylet.acl'));
+    beforeEach(module('ng-acl'));
 
     beforeEach(inject(function (_AclRegistryService_) {
         AclRegistryService = new _AclRegistryService_();

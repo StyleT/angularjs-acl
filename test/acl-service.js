@@ -18,7 +18,7 @@ describe('ncAclService', function () {
         }
     };
 
-    beforeEach(module('stylet.acl'));
+    beforeEach(module('ng-acl'));
 
     beforeEach(inject(function (_AclService_) {
         AclService = _AclService_;

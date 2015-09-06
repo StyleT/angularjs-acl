@@ -1,1 +1,1 @@
-angular.module('stylet.acl', []);
+angular.module('ng-acl', []);

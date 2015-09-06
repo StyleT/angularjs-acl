@@ -43,7 +43,7 @@
  *    Provides a lightweight and flexible access control list (ACL) implementation for privileges management.
  *    In general, an application may utilize such ACL‘s to control access to certain protected objects by other requesting objects.
  */
-angular.module('stylet.acl').service('AclService', function (AclRegistryService) {
+angular.module('ng-acl').service('AclService', function (AclRegistryService) {
     'use strict';
     var self = this;
 
@@ -51,7 +51,7 @@ angular.module('stylet.acl').service('AclService', function (AclRegistryService)
     self.TYPE_DENY  = 'TYPE_DENY';
     self.OP_ADD = 'OP_ADD';
     self.OP_REMOVE = 'OP_REMOVE';
-    self.USER_IDENTITY_ROLE = 'stylet.acl.role';
+    self.USER_IDENTITY_ROLE = 'ng-acl.role';
 
     var _userIdentity = null;
     var _roleRegistry = new AclRegistryService();// jshint ignore:line

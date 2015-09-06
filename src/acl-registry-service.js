@@ -3,7 +3,7 @@
  * @name AclRegistryService
  * @description AclRegistryService factory
  */
-angular.module('stylet.acl').factory('AclRegistryService', function () {
+angular.module('ng-acl').factory('AclRegistryService', function () {
     'use strict';
 
     /**
