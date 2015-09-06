@@ -1,10 +1,16 @@
 /**
  * @ngdoc service
  * @name AclRegistryService
+ * @description AclRegistryService factory
  */
 angular.module('stylet.acl').factory('AclRegistryService', function () {
     'use strict';
 
+    /**
+     * @ngdoc method
+     * @constructs AclRegistryService
+     * @description Initializes a new ACL role registry
+     */
     var AclRegistryService = function () {
         var self = this;
         var _storage = {};
@@ -92,7 +98,10 @@ angular.module('stylet.acl').factory('AclRegistryService', function () {
             }
 
             _storage[item].children.forEach(function (child) {
-                self.remove(child);
+                var index = _storage[child].parents.indexOf(item);
+                if (index !== -1) {
+                    _storage[child].parents.splice(index, 1);
+                }
             });
             _storage[item].parents.forEach(function (parent) {
                 var index = _storage[parent].children.indexOf(item);

@@ -116,7 +116,7 @@ describe('ncAclService', function () {
             AclService.removeRole('Manager');
 
             expect(AclService.hasRole('Manager')).toBeFalsy();
-            expect(AclService.hasRole('God')).toBeFalsy();
+            expect(AclService.hasRole('God')).toBeTruthy();
         });
 
         it('should throw Exception during removal of unexisted role', function () {
