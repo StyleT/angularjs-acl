@@ -10,7 +10,6 @@ var path = require('path');
 var cache = require('gulp-cache');
 var angularFilesort = require('gulp-angular-filesort');
 var ngAnnotate = require('gulp-ng-annotate');
-var karmaServer = require('karma').Server;
 
 // Check for "TRUE" code style in JS files
 gulp.task('lint', function () {
@@ -51,10 +50,21 @@ gulp.task('compile', function () {
 });
 
 gulp.task('test', ['lint', 'compile'], function (done) {
+    var karmaServer = require('karma').Server;
+
     new karmaServer({
         configFile: __dirname + '/karma.conf.js',
         browsers: ['PhantomJS']
     }, done).start();
+});
+
+gulp.task('generate-doc', function () {
+    var gulpDocs = require('gulp-ngdocs');
+    return gulp.src('./src/**/*.js')
+        .pipe(gulpDocs.process({
+            html5Mode: false
+        }))
+        .pipe(gulp.dest('./docs'));
 });
 
 

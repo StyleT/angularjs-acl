@@ -37,8 +37,8 @@
 
 
 /**
- * @ngdoc service
- * @name AclService
+ * @ngdoc object
+ * @name ng-acl.AclService
  * @description
  *    Provides a lightweight and flexible access control list (ACL) implementation for privileges management.
  *    In general, an application may utilize such ACL‘s to control access to certain protected objects by other requesting objects.

@@ -32,6 +32,7 @@
     "gulp-concat": "~2.6.0",
     "gulp-jshint": "~1.11.2",
     "gulp-ng-annotate": "^1.0.0",
+    "gulp-ngdocs": "^0.2.13",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.9",
     "karma-chrome-launcher": "^0.2.0",

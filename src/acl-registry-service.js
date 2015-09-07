@@ -1,13 +1,13 @@
 /**
- * @ngdoc service
- * @name AclRegistryService
+ * @ngdoc object
+ * @name ng-acl.AclRegistryService
  * @description AclRegistryService factory
  */
 angular.module('ng-acl').factory('AclRegistryService', function () {
     'use strict';
 
     /**
-     * @ngdoc method
+     * @name AclRegistryService
      * @constructs AclRegistryService
      * @description Initializes a new ACL role registry
      */
