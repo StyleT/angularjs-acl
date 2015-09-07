@@ -1,6 +1,6 @@
 # Angular ACL
 
-[![Build Status](https://travis-ci.org/StyleT/angular-acl.svg?branch=master)](https://travis-ci.org/StyleT/angular-acl)
+[![Build Status](https://travis-ci.org/StyleT/angularjs-acl.svg?branch=master)](https://travis-ci.org/StyleT/angularjs-acl)
 
 ---
 
