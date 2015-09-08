@@ -3,3 +3,6 @@ node_js:
   - '0.10'
 notifications:
   email: false
+install:
+  - npm install
+  - npm run bower -- install
