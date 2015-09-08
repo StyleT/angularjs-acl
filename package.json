@@ -1,6 +1,6 @@
 {
   "name": "angularjs-acl",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Provides a lightweight and flexible ACL implementation for privileges management in AngularJS",
   "main": "./dist/acl.js",
   "scripts": {
