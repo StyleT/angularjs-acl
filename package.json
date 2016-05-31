@@ -4,10 +4,11 @@
   "description": "Provides a lightweight and flexible ACL implementation for privileges management in AngularJS",
   "main": "./dist/acl.js",
   "scripts": {
-    "gulp": "gulp",
-    "karma": "karma",
     "bower": "bower",
-    "test": "gulp test"
+    "test": "karma start",
+    "compile": "browserify ./src/acl.js | derequire >  ./dist/acl.js",
+    "preversion": "npm run test",
+    "version": "npm run compile && git add -A dist"
   },
   "repository": {
     "type": "git",
@@ -24,14 +25,10 @@
   },
   "homepage": "https://github.com/StyleT/angularjs-acl#readme",
   "devDependencies": {
+    "js-acl": "^0.1.2",
     "bower": "~1.4.1",
-    "gulp": "*",
-    "gulp-angular-filesort": "^1.1.1",
-    "gulp-cache": "^0.2.10",
-    "gulp-concat": "~2.6.0",
-    "gulp-jshint": "~1.11.2",
-    "gulp-ng-annotate": "^1.0.0",
-    "gulp-ngdocs": "^0.2.13",
+    "browserify": "^13.0.1",
+    "derequire": "^2.0.3",
     "jasmine-core": "^2.3.4",
     "karma": "^0.13.9",
     "karma-chrome-launcher": "^0.2.0",

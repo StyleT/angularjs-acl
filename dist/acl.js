@@ -1,4 +1,132 @@
-angular.module('ng-acl', []);
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function (global){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.JsAcl = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+'use strict';
+
+/**
+ * @name AclRegistry
+ * @constructs AclRegistry
+ * @description Initializes a new ACL role registry
+ */
+function AclRegistry() {
+    var self = this;
+    var _storage = {};
+
+    self.add = function (item, parents /*null*/) {
+        parents = typeof parents === 'undefined' ? null : parents;
+
+        if (self.has(item)) {
+            throw new Error('Item "' + item + '" already exists in the registry');
+        }
+
+        var itemParents = [];
+
+        if (parents !== null) {
+            if (!Array.isArray(parents)) {
+                parents = [parents];
+            }
+
+            parents.forEach(function (parent) {
+                if (!self.has(parent)) {
+                    throw new Error('Parent role "' + parent + '" for "' + item + '" not exists in the registry');
+                }
+
+                itemParents.push(parent);
+                _storage[parent].children.push(item);
+            });
+        }
+
+        _storage[item] = {
+            id: item,
+            parents: itemParents,
+            children: []
+        };
+
+        return self;
+    };
+
+    self.get = function (item) {
+        if (!self.has(item)) {
+            throw new Error('Item "' + item + '" not exists in the registry');
+        }
+
+        return item;
+    };
+
+    self.has = function (item) {
+        return _storage[item] !== undefined;
+    };
+
+    self.getParents = function (item) {
+        if (!self.has(item)) {
+            throw new Error('Item "' + item + '" not exists in the registry');
+        }
+
+        return _storage[item].parents;
+    };
+
+    self.inherits = function (item, inherit, onlyParents /*false*/) {
+        onlyParents = typeof onlyParents === 'undefined' ? false : onlyParents;
+
+        if (!self.has(item) || !self.has(inherit)) {
+            throw new Error('Items not exists in the registry');
+        }
+
+        var inherits = _storage[item].parents.indexOf(inherit) !== -1;
+
+        if (inherits || onlyParents) {
+            return inherits;
+        }
+
+        for (var i = 0; i < _storage[item].parents.length; i++) {
+            var parent = _storage[item].parents[i];
+
+            if (self.inherits(parent, inherit)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    self.remove = function (item) {
+        if (!self.has(item)) {
+            throw new Error('Item "' + item + '" not exists in the registry');
+        }
+
+        _storage[item].children.forEach(function (child) {
+            var index = _storage[child].parents.indexOf(item);
+            if (index !== -1) {
+                _storage[child].parents.splice(index, 1);
+            }
+        });
+        _storage[item].parents.forEach(function (parent) {
+            var index = _storage[parent].children.indexOf(item);
+            if (index !== -1) {
+                _storage[parent].children.splice(index, 1);
+            }
+        });
+
+        delete _storage[item];
+
+        return self;
+    };
+
+    self.removeAll = function () {
+        _storage = {};
+
+        return self;
+    };
+
+    self.getItems = function () {
+        return JSON.parse(JSON.stringify(_storage));
+    };
+
+    return self;
+}
+
+module.exports = AclRegistry;
+},{}],"/src/index.js":[function(_dereq_,module,exports){
 /**
  * @interface AclResourceInterface
  */
@@ -23,68 +151,49 @@ angular.module('ng-acl', []);
  * @returns {Array<string>}
  */
 
-/**
- * Returns true if and only if the assertion conditions are met
- *
- * This method is passed the ACL, Role, Resource, and privilege to which the authorization query applies. If the
- * $role, $resource, or $privilege parameters are null, it means that the query applies to all Roles, Resources, or
- * privileges, respectively.
- *
- * @callback AclAssertion
- * @param {AclRoleInterface|string} role
- * @param {AclResourceInterface|string} resource
- * @param {string} privilege
- */
 
+var AclRegistry = _dereq_('./acl-registry');
 
-/**
- * @ngdoc service
- * @name AclService
- * @description
- *    Provides a lightweight and flexible access control list (ACL) implementation for privileges management.
- *    In general, an application may utilize such ACL‘s to control access to certain protected objects by other requesting objects.
- */
-angular.module('ng-acl').service('AclService', ["AclRegistryService", function (AclRegistryService) {
-    'use strict';
+function Acl() {
     var self = this;
 
     self.TYPE_ALLOW = 'TYPE_ALLOW';
     self.TYPE_DENY  = 'TYPE_DENY';
     self.OP_ADD = 'OP_ADD';
     self.OP_REMOVE = 'OP_REMOVE';
-    self.USER_IDENTITY_ROLE = 'ng-acl.role';
+    self.USER_IDENTITY_ROLE = 'acl.role';
 
-    var _userIdentity = null;
-    var _roleRegistry = new AclRegistryService();// jshint ignore:line
-    var _resources = {};
-    var _rules = {
-        allResources: {
-            allRoles: {
-                allPrivileges: {
-                    type: self.TYPE_DENY,
-                    assert: null
+    var _userIdentity = null,
+        _roleRegistry = new AclRegistry(),// jshint ignore:line
+        _resources = {},
+        _rules = {
+            allResources: {
+                allRoles: {
+                    allPrivileges: {
+                        type: self.TYPE_DENY,
+                        assert: null
+                    },
+                    byPrivilegeId: {}
                 },
-                byPrivilegeId: {}
+                byRoleId: {}
             },
-            byRoleId: {}
+            byResourceId: {}
         },
-        byResourceId: {}
-    };
-    var _isAllowedResource = null;
-    var _isAllowedRole = null;
+        _isAllowedResource = null,
+        _isAllowedRole = null;
 
     /**
      * @returns {(AclRoleInterface|null)}
      */
-    this.getUserIdentity = function () {
+    self.getUserIdentity = function () {
         return _userIdentity;
     };
 
     /**
      * @param {AclRoleInterface} identity
-     * @returns {AclService} Provides a fluent interface
+     * @returns {Acl} Provides a fluent interface
      */
-    this.setUserIdentity = function (identity) {
+    self.setUserIdentity = function (identity) {
         if (!(identity instanceof Object) || typeof identity.getRoles !== 'function') {
             throw new Error('Incorrect user identity');
         }
@@ -100,7 +209,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
         return self;
     };
 
-    this.clearUserIdentity = function () {
+    self.clearUserIdentity = function () {
         _userIdentity = null;
         self.removeRole(self.USER_IDENTITY_ROLE);
 
@@ -112,7 +221,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {string} [privilege=null]
      * @returns {boolean}
      */
-    this.can = function (resource, privilege) {
+    self.can = function (resource, privilege) {
         resource = typeof resource === 'undefined' ? null : resource;
         privilege = typeof privilege === 'undefined' ? null : privilege;
 
@@ -130,9 +239,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {(string|Array)} [resources=null]
      * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.allow = function (roles /*null*/, resources /*null*/, privileges /*null*/, assert /*null*/) {
+    self.allow = function (roles /*null*/, resources /*null*/, privileges /*null*/, assert /*null*/) {
         roles = typeof roles === 'undefined' ? null : roles;
         resources = typeof resources === 'undefined' ? null : resources;
         privileges = typeof privileges === 'undefined' ? null : privileges;
@@ -148,9 +257,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {(string|Array)} [resources=null]
      * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.deny = function (roles /*null*/, resources /*null*/, privileges /*null*/, assert /*null*/) {
+    self.deny = function (roles /*null*/, resources /*null*/, privileges /*null*/, assert /*null*/) {
         roles = typeof roles === 'undefined' ? null : roles;
         resources = typeof resources === 'undefined' ? null : resources;
         privileges = typeof privileges === 'undefined' ? null : privileges;
@@ -166,9 +275,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {(string|Array)} [resources=null]
      * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.removeAllow = function (roles, resources, privileges, assert) {
+    self.removeAllow = function (roles, resources, privileges, assert) {
         roles = typeof roles === 'undefined' ? null : roles;
         resources = typeof resources === 'undefined' ? null : resources;
         privileges = typeof privileges === 'undefined' ? null : privileges;
@@ -184,9 +293,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {(string|Array)} [resources=null]
      * @param {(string|Array)} [privileges=null]
      * @param {AclAssertion} assert
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.removeDeny = function (roles, resources, privileges, assert) {
+    self.removeDeny = function (roles, resources, privileges, assert) {
         roles = typeof roles === 'undefined' ? null : roles;
         resources = typeof resources === 'undefined' ? null : resources;
         privileges = typeof privileges === 'undefined' ? null : privileges;
@@ -221,7 +330,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param  {string} [privilege=null]
      * @return {boolean}
      */
-    this.isAllowed = function (role, resource, privilege) {
+    self.isAllowed = function (role, resource, privilege) {
         role = typeof role === 'undefined' ? null : role;
         resource = typeof resource === 'undefined' ? null : resource;
         privilege = typeof privilege === 'undefined' ? null : privilege;
@@ -298,9 +407,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      *
      * @param  {string} resource
      * @param  {string} [parent=null]
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.addResource = function (resource, parent) {
+    self.addResource = function (resource, parent) {
         parent = typeof parent === 'undefined' ? null : parent;
 
         if (typeof resource !== 'string' || resource === '') {
@@ -338,8 +447,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param  {(string|AclResourceInterface)} resource
      * @return {string}
      */
-    this.getResource = function (resource)
-    {
+    self.getResource = function (resource) {
         if (!self.hasResource(resource)) {
             throw new Error("Resource '$resourceId' not found");
         }
@@ -354,7 +462,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
     /**
      * @return {Array.<string>} of registered resources
      */
-    this.getResources = function () {
+    self.getResources = function () {
         return Object.keys(_resources);
     };
 
@@ -366,7 +474,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {(string|AclResourceInterface)} resource
      * @return {boolean}
      */
-    this.hasResource = function (resource) {
+    self.hasResource = function (resource) {
         if (resource instanceof Object && typeof resource.getResourceId === 'function') {
             resource = resource.getResourceId();
         }
@@ -388,11 +496,11 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param {boolean} [onlyParent=false]
      * @return {boolean}
      */
-    this.inheritsResource = function (resource, inherit, onlyParent) {
+    self.inheritsResource = function (resource, inherit, onlyParent) {
+        var parentId = null;
+
         resource = self.getResource(resource);
         inherit = self.getResource(inherit);
-
-        var parentId = null;
 
         if (_resources[resource].parent !== null) {
             parentId = _resources[resource].parent;
@@ -421,9 +529,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * The $resource parameter can either be a Resource or a Resource identifier.
      *
      * @param  {(string|AclResourceInterface)} resource
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.removeResource = function (resource) {
+    self.removeResource = function (resource) {
         if (!self.hasResource(resource)) {
             throw new Error("Resource '$resourceId' not found");
         }
@@ -432,8 +540,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
             resource = resource.getResourceId();
         }
 
-        var resourcesRemoved = [resource];
-        var resourceParent = _resources[resource].parent;
+        var resourcesRemoved = [resource],
+            resourceParent = _resources[resource].parent;
+
         if (resourceParent !== null) {
             _resources[resourceParent].children.splice(_resources[resourceParent].children.indexOf(resource), 1);
         }
@@ -459,9 +568,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
     /**
      * Removes all Resources
      *
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.removeResourceAll = function () {
+    self.removeResourceAll = function () {
         for (var resourceId in _resources) {
             for (var resourceIdCurrent in _rules.byResourceId) {
                 if (resourceId === resourceIdCurrent) {
@@ -491,9 +600,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      *
      * @param  {string} role
      * @param  {(string|Array.<string>)} [parents=null]
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.addRole = function (role, parents) {
+    self.addRole = function (role, parents) {
         parents = typeof parents === 'undefined' ? null : parents;
 
         if (typeof role !== 'string' || role === '') {
@@ -513,14 +622,14 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param  {string} role
      * @return {string}
      */
-    this.getRole = function (role) {
+    self.getRole = function (role) {
         return _roleRegistry.get(role);
     };
 
     /**
      * @return {Array.<string>} of registered roles
      */
-    this.getRoles = function () {
+    self.getRoles = function () {
         return Object.keys(_roleRegistry.getItems());
     };
 
@@ -532,7 +641,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param  {string} role
      * @return {boolean}
      */
-    this.hasRole = function (role) {
+    self.hasRole = function (role) {
         return _roleRegistry.has(role);
     };
 
@@ -550,7 +659,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param  {boolean} [onlyParents=false]
      * @return {boolean}
      */
-    this.inheritsRole = function (role, inherit, onlyParents) {
+    self.inheritsRole = function (role, inherit, onlyParents) {
         onlyParents = typeof onlyParents === 'undefined' ? false : onlyParents;
 
         return _roleRegistry.inherits(role, inherit, onlyParents);
@@ -562,9 +671,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * The $role parameter can either be a Role or a Role identifier.
      *
      * @param  {string} role
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.removeRole = function (role) {
+    self.removeRole = function (role) {
         _roleRegistry.remove(role);
 
         if (_rules.allResources.byRoleId[role] !== undefined) {
@@ -585,9 +694,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
     /**
      * Removes all Roles from the registry
      *
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
-    this.removeRoleAll = function () {
+    self.removeRoleAll = function () {
         _roleRegistry.removeAll();
 
         for (var roleCurrent in _rules.allResources.byRoleId) {
@@ -651,7 +760,7 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @param  {string|Array.<string>} [resources=null]
      * @param  {string|Array.<string>} [privileges=null]
      * @param  {function} [assert=null]
-     * @return {AclService} Provides a fluent interface
+     * @return {Acl} Provides a fluent interface
      */
     function setRule (
         operation,
@@ -858,10 +967,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      */
     function roleDFSAllPrivileges(role, resource){
         var dfs = {
-            visited: {},
-            stack: []
-        };
-        var result;
+                visited: {},
+                stack: []
+            }, result;
 
         if (null !== (result = roleDFSVisitAllPrivileges(role, resource, dfs))) {
             return result;
@@ -903,8 +1011,6 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
         var rules;
         if ((rules = getRules(resource, role)) !== null) {
             for (var privilege in rules.byPrivilegeId) {
-                var rule = rules.byPrivilegeId[privilege];
-
                 if (self.TYPE_DENY === getRuleType(resource, role, privilege)) {
                     return false;
                 }
@@ -944,11 +1050,9 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
         }
 
         var dfs = {
-            visited: {},
-            stack: []
-        };
-
-        var result;
+                visited: {},
+                stack: []
+            }, result;
 
         if (null !== (result = roleDFSVisitOnePrivilege(role, resource, privilege, dfs))) {
             return result;
@@ -1036,12 +1140,10 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
 
 
         // get the rules for the $resource and $role
-        var rules = getRules(resource, role);
+        var rules = getRules(resource, role), rule;
         if (rules === null) {
             return null;
         }
-
-        var rule;
 
         // follow $privilege
         if (privilege === null) {
@@ -1086,23 +1188,21 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
      * @return []
      */
     function getChildResources(resource){
-        var result = [];
-
-        var children = _resources[resource].children;
+        var result = [], children = _resources[resource].children;
         children.forEach(function (child) {
-            var child_return = getChildResources(child);
-            child_return.push(child);
-            result = result.concat(child_return);
+            var childReturn = getChildResources(child);
+            childReturn.push(child);
+            result = result.concat(childReturn);
         });
 
         return result;
     }
 
     function set(schema, path, value) {
-        var pList = path.split('.');
-        var len = pList.length;
+        var pList = path.split('.'),
+            len = pList.length;
 
-        for(var i = 0; i < len - 1; i++) {
+        for (var i = 0; i < len - 1; i++) {
             var elem = pList[i];
             if(!schema[elem]) {
                 schema[elem] = {};
@@ -1140,137 +1240,15 @@ angular.module('ng-acl').service('AclService', ["AclRegistryService", function (
             }
         }
     }
-}]);
-/**
- * @ngdoc service
- * @name AclRegistryService
- * @description AclRegistryService factory
- */
-angular.module('ng-acl').factory('AclRegistryService', function () {
-    'use strict';
+}
 
-    /**
-     * @ngdoc method
-     * @constructs AclRegistryService
-     * @description Initializes a new ACL role registry
-     */
-    var AclRegistryService = function () {
-        var self = this;
-        var _storage = {};
-
-        this.add = function (item, parents /*null*/) {
-            parents = typeof parents === 'undefined' ? null : parents;
-
-            if (self.has(item)) {
-                throw new Error('Item "' + item + '" already exists in the registry');
-            }
-
-            var itemParents = [];
-
-            if (parents !== null) {
-                if (!Array.isArray(parents)) {
-                    parents = [parents];
-                }
-
-                parents.forEach(function (parent) {
-                    if (!self.has(parent)) {
-                        throw new Error('Parent role "' + parent + '" for "' + item + '" not exists in the registry');
-                    }
-
-                    itemParents.push(parent);
-                    _storage[parent].children.push(item);
-                });
-            }
-
-            _storage[item] = {
-                id: item,
-                parents: itemParents,
-                children: []
-            };
-
-            return self;
-        };
-
-        this.get = function (item) {
-            if (!self.has(item)) {
-                throw new Error('Item "' + item + '" not exists in the registry');
-            }
-
-            return item;
-        };
-
-        this.has = function (item) {
-            return _storage[item] !== undefined;
-        };
-
-        this.getParents = function (item) {
-            if (!self.has(item)) {
-                throw new Error('Item "' + item + '" not exists in the registry');
-            }
-
-            return _storage[item].parents;
-        };
-
-        this.inherits = function (item, inherit, onlyParents /*false*/) {
-            onlyParents = typeof onlyParents === 'undefined' ? false : onlyParents;
-
-            if (!self.has(item) || !self.has(inherit)) {
-                throw new Error('Items not exists in the registry');
-            }
-
-            var inherits = _storage[item].parents.indexOf(inherit) !== -1;
-
-            if (inherits || onlyParents) {
-                return inherits;
-            }
-
-            for (var i = 0; i < _storage[item].parents.length; i++) {
-                var parent = _storage[item].parents[i];
-
-                if (self.inherits(parent, inherit)) {
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
-        this.remove = function (item) {
-            if (!self.has(item)) {
-                throw new Error('Item "' + item + '" not exists in the registry');
-            }
-
-            _storage[item].children.forEach(function (child) {
-                var index = _storage[child].parents.indexOf(item);
-                if (index !== -1) {
-                    _storage[child].parents.splice(index, 1);
-                }
-            });
-            _storage[item].parents.forEach(function (parent) {
-                var index = _storage[parent].children.indexOf(item);
-                if (index !== -1) {
-                    _storage[parent].children.splice(index, 1);
-                }
-            });
-
-            delete _storage[item];
-
-            return self;
-        };
-
-        this.removeAll = function () {
-            _storage = {};
-
-            return self;
-        };
-
-        this.getItems = function () {
-            return angular.copy(_storage);
-        };
-
-
-        return this;
-    };
-
-    return AclRegistryService;
+module.exports = Acl;
+},{"./acl-registry":1}]},{},[])("/src/index.js")
 });
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],2:[function(_dereq_,module,exports){
+'use strict';
+
+module.exports = angular.module('ng-acl', [])
+	.service('AclService', _dereq_('js-acl'));
+},{"js-acl":1}]},{},[2]);
